@@ -30,6 +30,12 @@ builder-image:
 binary-image: builder-image
 	@docker run --network host --rm "${BUILDER}" | docker build --network host -t "${REPOSITORY}" -f Dockerfile.run -
 
+builder-image-arm64:
+	@docker buildx build --platform linux/arm64 -t "${BUILDER}" -f build/package/Dockerfile.build . --load
+
+binary-image-arm64: builder-image-arm
+	@docker run --platform linux/arm64 --network host --rm "${BUILDER}" | docker buildx build --platform linux/arm64 -t "${REPOSITORY}" -f Dockerfile.run - --load
+
 test:
 	"$(GOCMD)" test -timeout 1800s -v ./...
 
